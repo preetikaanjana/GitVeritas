@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitVeritas - Resume vs GitHub Consistency Auditor</title>
+    <!-- Fonts: Serif Playfair Display and Sans Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌸</text></svg>">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Aurora Blob Backgrounds -->
+    <div class="blob blob-purple"></div>
+    <div class="blob blob-peach"></div>
+    <div class="blob blob-teal"></div>
+
+    <div class="app-container">
+        <!-- Floating Navbar -->
+        <nav class="navbar glass-dark">
+            <div class="logo">
+                <span class="logo-icon">🌸</span>
+                <span class="logo-text">GitVeritas</span>
+            </div>
+            <div class="nav-links">
+                <a href="#how-it-works">How it works</a>
+                <a href="#audit-section">Audit</a>
+                <a href="#faq">FAQ</a>
+            </div>
+            <div class="nav-actions">
+                <span class="theme-switch">☀️</span>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <header class="hero-section">
+            <div class="hero-content">
+                <span class="hero-badge">🛡️ Developer Codebase Consistency Verifier</span>
+                <h1 class="hero-title">Audit your code repositories. <em>Build</em> a stronger resume.</h1>
+                <p class="hero-desc">
+                    GitVeritas helps developers align their resume claims with actual public code. Find unlisted strengths, ensure timeline consistency, and verify your credentials for technical interviews.
+                </p>
+                <div class="hero-actions">
+                    <a href="#audit-section" class="btn btn-dark">Auditing console &rarr;</a>
+                    <a href="#how-it-works" class="btn btn-outline">Why developers use it</a>
+                </div>
+                <div class="tag-row">
+                    <span class="tag"><span class="tag-icon">💻</span> Code evidence</span>
+                    <span class="tag"><span class="tag-icon">💡</span> Unlisted strengths</span>
+                    <span class="tag"><span class="tag-icon">🕒</span> Timeline alignment</span>
+                </div>
+            </div>
+
+            <!-- Interactive Scan Card (Right Column) -->
+            <div class="hero-card-container" id="audit-section">
+                <div class="scan-card glass">
+                    <!-- Window Controls -->
+                    <div class="card-header">
+                        <div class="window-dots">
+                            <span class="dot dot-red"></span>
+                            <span class="dot dot-yellow"></span>
+                            <span class="dot dot-green"></span>
+                        </div>
+                        <span class="card-filename">scanning_resume.json</span>
+                    </div>
+                    
+                    <!-- Audit Form inside Card -->
+                    <form id="auditForm" class="card-body">
+                        <div class="form-group">
+                            <label for="resume">Upload Resume (PDF or DOCX)</label>
+                            <div class="file-upload-wrapper">
+                                <input type="file" id="resume" name="resume" accept=".pdf,.docx">
+                                <div class="file-upload-placeholder">
+                                    <span class="upload-icon">📄</span>
+                                    <span class="upload-text">Choose resume file</span>
+                                    <span class="upload-subtext">PDF or DOCX format</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="github_username">GitHub Username</label>
+                            <input type="text" id="github_username" name="github_username" placeholder="e.g. preetika">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="github_token">GitHub Access Token (Optional)</label>
+                            <input type="password" id="github_token" name="github_token" placeholder="ghp_xxxxxxxxxxxx">
+                            <small class="form-help">Recommended to prevent API rate-limit delays.</small>
+                        </div>
+
+                        <button type="submit" id="submitBtn" class="btn btn-dark btn-full">
+                            <span>Analyze Consistency</span>
+                            <div class="spinner hidden" id="spinner"></div>
+                        </button>
+                    </form>
+                    
+                    <div class="card-footer">
+                        <span class="signals-count">12 auditing signals active</span>
+                        <span class="status-badge"><span class="status-dot"></span> ready</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Error Box -->
+        <div id="errorBox" class="error-box glass hidden">
+            <span class="error-icon">⚠️</span>
+            <p id="errorText">An error occurred during verification.</p>
+        </div>
+
+        <!-- Analyzing State Loader (Circular radar scanner and diagnostics checklist) -->
+        <div id="analyzingCard" class="analyzing-card glass hidden">
+            <div class="analyzing-content">
+                <div class="radar-scanner">
+                    <div class="radar-circle">
+                        <div class="radar-sweep"></div>
+                        <div class="radar-core">
+                            <span class="radar-icon-emoji">🌸</span>
+                            <span id="scanProgressText" class="radar-progress">0%</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="analyzing-details">
+                    <h3 id="analyzingTitle">Initiating audit scan...</h3>
+                    <p id="analyzingSub">Please hold on, analyzing active repositories.</p>
+                    
+                    <ul class="diagnostic-checklist">
+                        <li id="check-resume" class="checklist-item"><span class="check-icon">⏳</span> Parsing resume content and taxonomy</li>
+                        <li id="check-profile" class="checklist-item"><span class="check-icon">⏳</span> Fetching public GitHub profile</li>
+                        <li id="check-repos" class="checklist-item"><span class="check-icon">⏳</span> Deep-scanning public repositories (up to 20)</li>
+                        <li id="check-notebooks" class="checklist-item"><span class="check-icon">⏳</span> Parsing Jupyter notebook imports</li>
+                        <li id="check-alignment" class="checklist-item"><span class="check-icon">⏳</span> Running semantic matching and timeline audits</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Audit Dashboard (Hidden by default, shown when verified) -->
+        <main id="resultsDashboard" class="results-dashboard hidden">
+            <div class="dashboard-header-row" style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                <h2 class="section-title" style="margin-bottom:0;">Audit Diagnostic Report</h2>
+                <button id="downloadVerifiedPageBtn" class="btn btn-purple" style="padding: 0.5rem 1.2rem; font-size:0.85rem; display:flex; align-items:center; gap:0.5rem; border-radius: 8px;">
+                    <span>📥</span> Download Verified Page
+                </button>
+            </div>
+            
+            <!-- Overview & Score Rows -->
+            <div class="overview-grid">
+                <!-- Candidate Info Card -->
+                <div class="info-card glass">
+                    <div class="info-header">
+                        <img id="profileAvatar" src="" alt="Avatar" class="avatar">
+                        <div class="info-text">
+                            <h3 id="profileName">Jane Smith</h3>
+                            <p id="profileUsername">@janesmith</p>
+                            <p id="profileBio" class="bio">Full stack developer</p>
+                        </div>
+                    </div>
+                    <div class="info-stats">
+                        <div class="stat-item">
+                            <span class="stat-num" id="scannedReposCount">0</span>
+                            <span class="stat-lbl">Scanned Repos</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-num" id="collabPrsCount">0</span>
+                            <span class="stat-lbl">Collaborative PRs</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Consistency Score Radial -->
+                <div class="score-card glass">
+                    <div class="score-wrapper">
+                        <div class="score-radial">
+                            <div class="score-circle">
+                                <span id="scoreText" class="score-number">0%</span>
+                                <span class="score-label">Match</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="score-details">
+                        <h3 id="scoreTitle">Analyzing...</h3>
+                        <p id="scoreDescription">Verification results will populate here.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- The Three Buckets Grid -->
+            <div class="buckets-grid">
+                <!-- Bucket 1: Verified -->
+                <div class="bucket-column glass" id="verifiedCol">
+                    <div class="bucket-header">
+                        <span class="bucket-badge badge-success">✓ Verified</span>
+                        <h3>Verified Claims</h3>
+                    </div>
+                    <p class="bucket-desc">Resume skills supported by repositories, commits, and active timelines.</p>
+                    <div class="bucket-list" id="verifiedList"></div>
+                </div>
+
+                <!-- Bucket 2: Unsupported -->
+                <div class="bucket-column glass" id="unsupportedCol">
+                    <div class="bucket-header">
+                        <span class="bucket-badge badge-danger">✗ Unsupported</span>
+                        <h3>Unsupported Claims</h3>
+                    </div>
+                    <p class="bucket-desc">Claims with timeline mismatches, low commit weights, or zero GitHub evidence.</p>
+                    <div class="bucket-list" id="unsupportedList"></div>
+                </div>
+
+                <!-- Bucket 3: Unlisted Strengths -->
+                <div class="bucket-column glass" id="strengthsCol">
+                    <div class="bucket-header">
+                        <span class="bucket-badge badge-info">💡 Unlisted</span>
+                        <h3>Unlisted Strengths</h3>
+                    </div>
+                    <p class="bucket-desc">Languages or tools heavily used in code volume but missing from the resume.</p>
+                    <div class="bucket-list" id="strengthsList"></div>
+                </div>
+            </div>
+
+            <!-- Bullet point quantifiable Claims verification -->
+            <div class="claims-audit-card glass">
+                <div class="claims-header">
+                    <h3>📈 Quantifiable Impact Verification</h3>
+                    <p class="section-desc">Auditing specific bullet points and impact statements against codebase footprint and activity.</p>
+                </div>
+                <div class="claims-list" id="claimsList"></div>
+            </div>
+
+            <!-- Actionable Recommendations Card -->
+            <div class="claims-audit-card glass" id="recommendationsCard" style="margin-top: 2rem;">
+                <div class="claims-header">
+                    <h3>💡 Portfolio Gap Recommendations</h3>
+                    <p class="section-desc">Practical steps to resolve unsupported resume claims and strengthen your developer verification profile.</p>
+                </div>
+                <div class="recommendations-list" id="recommendationsList" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem;"></div>
+            </div>
+        </main>
+
+        <!-- Information Section (How it works) -->
+        <!-- Information Section (Why Students use GitVeritas) -->
+        <section id="how-it-works" class="info-section">
+            <h2>Why students and bootcamps use GitVeritas</h2>
+            <div class="info-grid">
+                <div class="info-card-step">
+                    <div class="step-card-header">
+                        <div class="step-icon-bubble bubble-purple">✨</div>
+                        <span class="step-badge badge-purple">Step 01</span>
+                    </div>
+                    <h3>Discover Unlisted Strengths</h3>
+                    <p>Coursework, school homework, and sandbox repositories often contain technologies (like React, Tailwind, or FastAPI) that you forgot to put on your resume. We discover them automatically and help you highlight them.</p>
+                </div>
+                <div class="info-card-step">
+                    <div class="step-card-header">
+                        <div class="step-icon-bubble bubble-peach">🕒</div>
+                        <span class="step-badge badge-peach">Step 02</span>
+                    </div>
+                    <h3>Fact-Check Timelines</h3>
+                    <p>Ensure your university coursework or capstone project dates align with your actual GitHub commits. If a resume says you worked with Java in 2025, but your last commit was in 2023, we help you spot it first.</p>
+                </div>
+                <div class="info-card-step">
+                    <div class="step-card-header">
+                        <div class="step-icon-bubble bubble-teal">🤝</div>
+                        <span class="step-badge badge-teal">Step 03</span>
+                    </div>
+                    <h3>Prove Team Collaboration</h3>
+                    <p>Hiring managers value team player experience. We look at your pull requests to public repositories and group assignments to prove you know how to collaborate, review code, and contribute to shared codebases.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ Section to add details and height -->
+        <section id="faq" class="info-section" style="margin-top: 5rem;">
+            <h2>Frequently Asked Questions</h2>
+            <div class="faq-grid">
+                <div class="faq-card-item">
+                    <div class="faq-icon-bubble bubble-purple">📊</div>
+                    <div class="faq-card-content">
+                        <h3>How does the alignment score work?</h3>
+                        <p>The alignment score is the percentage of skills listed on your resume that we could verify through public contributions, languages, or notebook imports on your GitHub profile. Having some unverified skills is completely normal, but a higher score shows strong evidence of practical experience.</p>
+                    </div>
+                </div>
+                <div class="faq-card-item">
+                    <div class="faq-icon-bubble bubble-peach">🔑</div>
+                    <div class="faq-card-content">
+                        <h3>What if my commits are not showing up?</h3>
+                        <p>GitHub attributes commits to users based on the email address in the git config. If you used your student email locally but your personal email on GitHub, your commits might not count towards your profile. GitVeritas bypasses this limit for repos you own directly, so your personal projects still verify your skills!</p>
+                    </div>
+                </div>
+                <div class="faq-card-item">
+                    <div class="faq-icon-bubble bubble-teal">📓</div>
+                    <div class="faq-card-content">
+                        <h3>How are Jupyter Notebooks analyzed?</h3>
+                        <p>We recursively scan all directories in your repositories for `.ipynb` files. We parse the notebook's code cells line-by-line, detect imports of packages like `numpy`, `pandas`, or `scikit-learn`, and map them to your resume skills.</p>
+                    </div>
+                </div>
+                <div class="faq-card-item">
+                    <div class="faq-icon-bubble bubble-blue">🛡️</div>
+                    <div class="faq-card-content">
+                        <h3>Is my resume data stored?</h3>
+                        <p>No. We parse your resume temporarily in-memory to perform the consistency audit. Your data is never stored, sold, or shared with third parties.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="app-footer glass-dark">
+            <div class="footer-content">
+                <p>© 2026 GitVeritas. Built for students, grads, and builders.</p>
+                <div class="footer-links">
+                    <a href="https://github.com" target="_blank">GitHub</a>
+                    <a href="#audit-section">Back to Console</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
