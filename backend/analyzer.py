@@ -59,16 +59,16 @@ SYNONYM_TAXONOMY = {
     "databases": ["postgresql", "postgres", "mysql", "sqlite", "mongodb", "redis", "sql", "dynamodb", "nosql"]
 }
 
-# Try loading SentenceTransformers, fallback to rule-based matching if failed/not installed yet
-try:
-    from sentence_transformers import SentenceTransformer, util
-    # Load model on demand to make imports fast
-    model = None
-    HAS_TRANSFORMERS = True
-except Exception as e:
-    model = None
-    HAS_TRANSFORMERS = False
-    print(f"SentenceTransformers load failed/skipped. Using fallback semantic matching: {e}")
+# Try loading SentenceTransformers, fallback to rule-based matching if failed/not installed/disabled
+HAS_TRANSFORMERS = False
+model = None
+
+if os.environ.get("DISABLE_TRANSFORMERS") != "1":
+    try:
+        from sentence_transformers import SentenceTransformer, util
+        HAS_TRANSFORMERS = True
+    except Exception as e:
+        print(f"SentenceTransformers load failed/skipped. Using fallback semantic matching: {e}")
 
 class ConsistencyAuditor:
     def __init__(self):
@@ -76,8 +76,17 @@ class ConsistencyAuditor:
 
     def _get_model(self):
         global model
+        if os.environ.get("DISABLE_TRANSFORMERS") == "1":
+            return None
         if HAS_TRANSFORMERS and model is None:
             try:
+                # Limit PyTorch CPU threads to reduce memory overhead
+                try:
+                    import torch
+                    torch.set_num_threads(1)
+                    torch.set_grad_enabled(False)
+                except Exception:
+                    pass
                 # Lightweight sentence-transformers model
                 model = SentenceTransformer('all-MiniLM-L6-v2')
             except Exception as e:
