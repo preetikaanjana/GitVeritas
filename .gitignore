@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pyc
+*.db
+.system_generated/
+.agents/
+.idea/
+.vscode/
+CVS/
+.DS_Store
+Thumbs.db
