@@ -42,7 +42,31 @@ BUILTIN_BLOCKLIST = {
     "packaging", "pipenv", "virtualenv", "virtualenvwrapper", "tslib", "ts-node",
     "autoprefixer", "postcss", "cssnano", "ajv", "chokidar", "glob", "graceful-fs",
     "inherits", "safe-buffer", "yallist", "lru-cache", "minimatch", "once", "wrappy",
-    "cv2", "zlib", "zoblib", "werkzeug", "joblib", "negotiator", "tss", "tslib"
+    "cv2", "zlib", "zoblib", "werkzeug", "joblib", "negotiator", "tss", "tslib",
+
+    # More npm & Python utility libraries
+    "axios", "node-fetch", "isomorphic-fetch", "superagent", "got", "request", "bluebird",
+    "async", "pify", "make-dir", "find-up", "pkg-dir", "resolve", "source-map", "strip-ansi",
+    "ansi-regex", "supports-color", "has-flag", "color-convert", "color-name", "escape-string-regexp",
+    "is-wsl", "json5", "parse-json", "error-ex", "hosted-git-info", "is-arrayish", "read-pkg",
+    "read-pkg-up", "normalize-package-data", "validate-npm-package-license", "spdx-correct",
+    "spdx-expression-parse", "spdx-license-ids", "spdx-exceptions", "type-fest", "camelcase",
+    "decamelize", "strip-bom", "p-limit", "p-locate", "p-try", "path-exists", "locate-path",
+    "p-defer", "p-is-promise", "classnames", "prop-types", "less", "stylus", "postcss-preset-env",
+    "mini-css-extract-plugin", "terser-webpack-plugin", "copy-webpack-plugin", "dotenv-webpack",
+    "define-properties", "object-keys", "es-abstract", "function-bind", "has", "is-core-module",
+    "path-parse", "resolve-from", "call-bind", "get-intrinsic", "object-inspect", "has-symbols",
+    "has-proto", "object.assign", "has-properties", "object.entries", "object.values",
+    "array-includes", "array.prototype.flat", "array.prototype.flatmap", "string.prototype.trimstart",
+    "string.prototype.trimend", "safe-regex", "regexp.prototype.flags",
+    
+    # Python frameworks / runtime / connection helpers
+    "requests", "httpx", "urllib3", "pypdf", "python-docx", "python-dotenv", "click", "tqdm",
+    "jinja2", "markupsafe", "itsdangerous", "pytz", "tzdata", "dateutil", "python-dateutil",
+    "attrs", "attrs-pretty", "pluggy", "iniconfig", "filelock", "fsspec", "typing-extensions",
+    "sympy", "cachetools", "marshmallow", "anyio", "sniffio", "h11", "httpcore", "starlette",
+    "greenlet", "distro", "certifi", "click", "colorama", "filelock", "idna", "pip-tools",
+    "importlib-metadata", "zipp", "backports", "six", "pkg_resources"
 }
 
 GITHUB_API_URL = "https://api.github.com"
