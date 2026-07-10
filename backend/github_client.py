@@ -33,13 +33,13 @@ MAX_REPOS_TO_SCAN = 20
 
 class GitHubClient:
     def __init__(self, token: Optional[str] = None):
-        self.token = token
+        self.token = token or os.environ.get("GITHUB_TOKEN") or os.environ.get("GITHUB_PAT")
         self.headers = {
             "Accept": "application/vnd.github+json",
             "User-Agent": "Resume-GitHub-Auditor"
         }
-        if token:
-            self.headers["Authorization"] = f"token {token}"
+        if self.token:
+            self.headers["Authorization"] = f"token {self.token}"
             
     async def fetch_profile(self, username: str) -> Dict[str, Any]:
         """Fetches the user's general GitHub profile info."""
