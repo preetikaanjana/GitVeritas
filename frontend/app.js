@@ -476,9 +476,13 @@ document.addEventListener("DOMContentLoaded", () => {
     // Theme toggle switch logic
     const themeSwitch = document.querySelector(".theme-switch");
     if (themeSwitch) {
-        if (localStorage.getItem("theme") === "light") {
+        // Default to light theme if no theme is stored, or if stored theme is "light"
+        if (localStorage.getItem("theme") !== "dark") {
             document.body.classList.add("light-theme");
             themeSwitch.innerText = "🌙";
+        } else {
+            document.body.classList.remove("light-theme");
+            themeSwitch.innerText = "☀️";
         }
         
         themeSwitch.addEventListener("click", () => {
