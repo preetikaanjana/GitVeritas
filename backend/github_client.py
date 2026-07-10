@@ -41,7 +41,8 @@ BUILTIN_BLOCKLIST = {
     "requests-toolbelt", "six", "wheel", "setuptools", "pip", "pkg-resources", "distutils", 
     "packaging", "pipenv", "virtualenv", "virtualenvwrapper", "tslib", "ts-node",
     "autoprefixer", "postcss", "cssnano", "ajv", "chokidar", "glob", "graceful-fs",
-    "inherits", "safe-buffer", "yallist", "lru-cache", "minimatch", "once", "wrappy"
+    "inherits", "safe-buffer", "yallist", "lru-cache", "minimatch", "once", "wrappy",
+    "cv2", "zlib", "zoblib", "werkzeug", "joblib", "negotiator", "tss", "tslib"
 }
 
 GITHUB_API_URL = "https://api.github.com"
