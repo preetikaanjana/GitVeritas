@@ -25,7 +25,23 @@ BUILTIN_BLOCKLIST = {
     
     # Node.js built-ins
     "path", "fs", "http", "https", "crypto", "stream", "buffer", "events", "util", "url", 
-    "querystring", "zlib", "child_process", "cluster", "dns", "net", "tls", "dgram", "readline", "vm"
+    "querystring", "zlib", "child_process", "cluster", "dns", "net", "tls", "dgram", "readline", "vm",
+
+    # Common utility, lint, test, format, and config dependencies (npm/pip)
+    "eslint", "prettier", "husky", "lint-staged", "nodemon", "pm2", "dotenv", "cross-env",
+    "jest", "mocha", "chai", "vitest", "cypress", "playwright", "supertest", "pytest", 
+    "tox", "pytest-cov", "coverage", "pytest-asyncio", "lodash", "underscore", "ramda", 
+    "uuid", "nanoid", "moment", "date-fns", "dayjs", "chalk", "debug", "ms", "semver", 
+    "minimist", "yargs", "commander", "shelljs", "rimraf", "mkdirp", "concurrently", 
+    "cross-spawn", "qs", "query-string", "cors", "cookie-parser", "body-parser", "morgan", 
+    "helmet", "compression", "serve-static", "multer", "express-rate-limit", "mime", 
+    "mime-types", "babel", "webpack", "webpack-cli", "webpack-dev-server", "html-webpack-plugin", 
+    "clean-webpack-plugin", "style-loader", "css-loader", "sass-loader", "file-loader", 
+    "url-loader", "postcss-loader", "certifi", "idna", "charset-normalizer", "urllib3", 
+    "requests-toolbelt", "six", "wheel", "setuptools", "pip", "pkg-resources", "distutils", 
+    "packaging", "pipenv", "virtualenv", "virtualenvwrapper", "tslib", "ts-node",
+    "autoprefixer", "postcss", "cssnano", "ajv", "chokidar", "glob", "graceful-fs",
+    "inherits", "safe-buffer", "yallist", "lru-cache", "minimatch", "once", "wrappy"
 }
 
 GITHUB_API_URL = "https://api.github.com"

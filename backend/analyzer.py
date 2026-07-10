@@ -59,6 +59,17 @@ SYNONYM_TAXONOMY = {
     "databases": ["postgresql", "postgres", "mysql", "sqlite", "mongodb", "redis", "sql", "dynamodb", "nosql"]
 }
 
+from backend.resume_parser import TECH_TAXONOMY
+
+VALID_CORE_TECH = set()
+for category, skills in TECH_TAXONOMY.items():
+    for skill in skills:
+        VALID_CORE_TECH.add(skill.lower().strip())
+for key, synonyms in SYNONYM_TAXONOMY.items():
+    VALID_CORE_TECH.add(key.lower().strip())
+    for syn in synonyms:
+        VALID_CORE_TECH.add(syn.lower().strip())
+
 # Try loading SentenceTransformers, fallback to rule-based matching if failed/not installed/disabled
 HAS_TRANSFORMERS = False
 model = None
@@ -522,6 +533,10 @@ class ConsistencyAuditor:
         # 3. Extract Unlisted Strengths
         unlisted_strengths = []
         for tech in github_techs:
+            # Skip if technology is not part of core developer skills taxonomy
+            if tech.lower().strip() not in VALID_CORE_TECH:
+                continue
+                
             ev_data = tech_evidence_strength[tech]
             ev_strength = ev_data["score"]
             
