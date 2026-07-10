@@ -2,6 +2,7 @@
 __pycache__/
 *.pyc
 *.db
+push_one_by_one.ps1
 .system_generated/
 .agents/
 .idea/
