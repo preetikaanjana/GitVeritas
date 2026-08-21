@@ -437,7 +437,58 @@ class ConsistencyAuditor:
                 })
                 claim_match_scores.append(1.0)
                 continue
+
+            # Special case for HTML/CSS auto-verification if JS/React/TS/Vue/Angular/NextJS is present
+            if skill_lower in ["html", "css", "html5", "css3"]:
+                web_ui_evidence = False
+                matched_web_tech = None
+                for tech in github_techs:
+                    if tech.lower().strip() in ["javascript", "typescript", "react", "vue", "angular", "next.js", "nextjs"]:
+                        web_ui_evidence = True
+                        matched_web_tech = tech.lower().strip()
+                        break
                 
+                if web_ui_evidence and matched_web_tech:
+                    ev_data = tech_evidence_strength[matched_web_tech]
+                    ev_strength = ev_data["score"]
+                    matched_repos = [r for r in repos if r["name"] in ev_data["repos"]]
+                    total_commits = sum(r.get("commits_by_user", 0) for r in matched_repos)
+                    
+                    git_years = []
+                    for r in matched_repos:
+                        if r.get("first_commit"):
+                            try:
+                                git_years.append(datetime.fromisoformat(r["first_commit"].replace("Z", "")).year)
+                            except Exception:
+                                pass
+                        if r.get("last_commit"):
+                            try:
+                                git_years.append(datetime.fromisoformat(r["last_commit"].replace("Z", "")).year)
+                            except Exception:
+                                pass
+                    git_start = min(git_years) if git_years else 2026
+                    git_end = max(git_years) if git_years else 2026
+
+                    verified_claims.append({
+                        "skill": skill,
+                        "matched_tech": matched_web_tech,
+                        "similarity": 1.0,
+                        "evidence_strength": ev_strength,
+                        "total_commits": total_commits,
+                        "active_period": f"{git_start} - {git_end}" if git_start else "Unknown",
+                        "timeline_warning": None,
+                        "repos": ev_data["repos"],
+                        "proofs": [{
+                            "repo": r["name"],
+                            "file": "Web UI project",
+                            "snippet": f"Implicitly verified via {matched_web_tech} code footprint.",
+                            "type": "implicit"
+                        } for r in matched_repos[:2]],
+                        "breakdown": ev_data["breakdown"]
+                    })
+                    claim_match_scores.append(1.0)
+                    continue
+
             best_match_tech = None
             best_similarity = 0.0
             
