@@ -63,8 +63,18 @@ app.post('/api/audit', upload.single('resume'), async (req, res) => {
         // 4. Return formatted response
         return res.json({
             success: true,
-            candidate: githubData.profile.name,
-            audit: auditResults
+            username: githubUsername,
+            profile: {
+                name: githubData.profile.name || githubUsername,
+                avatar_url: githubData.profile.avatar_url,
+                bio: githubData.profile.bio,
+                public_repos: githubData.profile.public_repos || 0,
+                followers: githubData.profile.followers || 0,
+                created_at: githubData.profile.created_at,
+            },
+            audit: auditResults,
+            repositories_scanned: githubData.repositories.length,
+            collaborative_prs_count: githubData.collaborative_prs_count
         });
     } catch (error) {
         console.error("Audit processing failed", error);

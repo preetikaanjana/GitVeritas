@@ -62,37 +62,73 @@ class GitHubClient {
         }
     }
 
+    async fetchUserPullRequests(username) {
+        try {
+            const data = await this.getRequest(`${this.baseUrl}/search/issues?q=author:${username}+type:pr&per_page=50`);
+            const items = data.items || [];
+            const prs = [];
+            for (const item of items) {
+                const repoUrl = item.repository_url || "";
+                const parts = repoUrl.split("/");
+                const repoFullName = parts.slice(-2).join("/");
+                const owner = parts[parts.length - 2] || "";
+                const isCollab = owner.toLowerCase() !== username.toLowerCase();
+                prs.push({
+                    title: item.title,
+                    repo: repoFullName,
+                    state: item.state,
+                    created_at: item.created_at,
+                    is_collaborative: isCollab
+                });
+            }
+            return prs;
+        } catch (e) {
+            console.error(`Error fetching PRs for ${username}: ${e.message}`);
+            return [];
+        }
+    }
+
     async analyzeUser(username) {
-        const usernameLower = username.toLowerCase();
+        const usernameLower = username.toLowerCase().trim();
         
-        // 1. Check SQLite Cache first
+        // 1. Fetch Pull Requests dynamically
+        const prs = await this.fetchUserPullRequests(usernameLower);
+        const collabPrsCount = prs.filter(pr => pr.is_collaborative).length;
+
+        // 2. Check SQLite Cache first
         const cachedProfile = await getCachedProfile(usernameLower);
         const cachedRepos = await getCachedRepos(usernameLower);
         if (cachedProfile && cachedRepos) {
-            return { profile: cachedProfile, repositories: cachedRepos };
+            return { 
+                profile: cachedProfile, 
+                repositories: cachedRepos,
+                pull_requests: prs,
+                collaborative_prs_count: collabPrsCount
+            };
         }
 
-        // 2. Fetch User Profile
+        // 3. Fetch User Profile
         let profileData;
         try {
-            profileData = await this.getRequest(`${this.baseUrl}/users/${username}`);
+            profileData = await this.getRequest(`${this.baseUrl}/users/${usernameLower}`);
         } catch (e) {
-            throw new Error(`Failed to fetch GitHub profile for '${username}': ${e.message}`);
+            throw new Error(`Failed to fetch GitHub profile for '${usernameLower}': ${e.message}`);
         }
 
         const profile = {
             username: profileData.login,
             name: profileData.name || profileData.login,
+            avatar_url: profileData.avatar_url,
             bio: profileData.bio || "",
             public_repos: profileData.public_repos,
             followers: profileData.followers,
             created_at: profileData.created_at
         };
 
-        // 3. Fetch Repositories
+        // 4. Fetch Repositories
         let rawRepos = [];
         try {
-            rawRepos = await this.getRequest(`${this.baseUrl}/users/${username}/repos?per_page=50&type=all`);
+            rawRepos = await this.getRequest(`${this.baseUrl}/users/${usernameLower}/repos?per_page=50&type=all`);
         } catch (e) {
             console.error(`Error fetching repos: ${e.message}`);
         }
@@ -105,7 +141,7 @@ class GitHubClient {
 
         const analyzedRepos = [];
 
-        // 4. Concurrently analyze each repository
+        // 5. Concurrently analyze each repository
         const repoAnalysisPromises = sortedRepos.map(async (repo) => {
             const owner = repo.owner.login;
             const repoName = repo.name;
@@ -222,7 +258,7 @@ class GitHubClient {
             let lastCommit = null;
             try {
                 const commits = await this.getRequest(
-                    `${this.baseUrl}/repos/${owner}/${repoName}/commits?author=${username}&per_page=20`
+                    `${this.baseUrl}/repos/${owner}/${repoName}/commits?author=${usernameLower}&per_page=20`
                 );
                 if (commits && commits.length > 0) {
                     commitsCount = commits.length;
@@ -250,11 +286,16 @@ class GitHubClient {
 
         await Promise.all(repoAnalysisPromises);
 
-        // 5. Store Cache
+        // 6. Store Cache
         await saveProfileCache(usernameLower, profile);
         await saveReposCache(usernameLower, analyzedRepos);
 
-        return { profile, repositories: analyzedRepos };
+        return { 
+            profile, 
+            repositories: analyzedRepos,
+            pull_requests: prs,
+            collaborative_prs_count: collabPrsCount
+        };
     }
 }
 
