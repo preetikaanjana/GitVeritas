@@ -1,5 +1,58 @@
 const { TECH_TAXONOMY } = require('./resume_parser');
 
+// Disable SSL certificate validation to prevent model download failures
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
+let pipeline = null;
+let pipelineInstance = null;
+
+// Dynamically import pipeline from @xenova/transformers
+const getPipeline = async () => {
+    if (process.env.DISABLE_TRANSFORMERS === '1') {
+        return null;
+    }
+    if (!pipelineInstance) {
+        try {
+            if (!pipeline) {
+                const transformers = require('@xenova/transformers');
+                pipeline = transformers.pipeline;
+                transformers.env.allowLocalModels = false; // force downloading model from huggingface
+            }
+            pipelineInstance = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
+        } catch (e) {
+            console.error("Xenova Transformers pipeline load failed/skipped. Using fallback:", e);
+            pipelineInstance = null;
+        }
+    }
+    return pipelineInstance;
+};
+
+const getEmbedding = async (text) => {
+    try {
+        const pipe = await getPipeline();
+        if (!pipe) return null;
+        const output = await pipe(text, { pooling: 'mean', normalize: true });
+        return Array.from(output.data);
+    } catch (e) {
+        console.error(`Embedding generation failed for '${text}':`, e);
+        return null;
+    }
+};
+
+const cosineSimilarity = (vecA, vecB) => {
+    if (!vecA || !vecB || vecA.length !== vecB.length) return 0.0;
+    let dotProduct = 0.0;
+    let normA = 0.0;
+    let normB = 0.0;
+    for (let i = 0; i < vecA.length; i++) {
+        dotProduct += vecA[i] * vecB[i];
+        normA += vecA[i] * vecA[i];
+        normB += vecB[i] * vecB[i];
+    }
+    if (normA === 0 || normB === 0) return 0.0;
+    return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
+};
+
 const SYNONYM_TAXONOMY = {
     "machine learning": ["tensorflow", "pytorch", "keras", "scikit-learn", "sklearn", "pandas", "numpy", "ml"],
     "deep learning": ["tensorflow", "pytorch", "keras", "neural networks", "cnn", "rnn", "transformers"],
@@ -47,19 +100,62 @@ class ConsistencyAuditor {
         return intersection.size / union.size;
     }
 
-    computeSimilaritiesBatch(resumeSkills, githubTechs) {
+    async computeSimilaritiesBatch(resumeSkills, githubTechs) {
         const similarities = {};
         for (const s of resumeSkills) {
             similarities[s] = {};
             for (const g of githubTechs) {
+                similarities[s][g] = 0.0;
+            }
+        }
+        
+        // Exact matches and synonyms first
+        for (const s of resumeSkills) {
+            for (const g of githubTechs) {
                 const sClean = s.toLowerCase().trim();
                 const gClean = g.toLowerCase().trim();
-                
                 if (sClean === gClean) {
                     similarities[s][g] = 1.0;
                 } else if (SYNONYM_TAXONOMY[sClean] && SYNONYM_TAXONOMY[sClean].includes(gClean)) {
                     similarities[s][g] = 0.85; // Synonym weight
-                } else {
+                }
+            }
+        }
+
+        // Try SBERT embeddings via Xenova Transformers
+        const pipe = await getPipeline();
+        if (pipe && resumeSkills.length > 0 && githubTechs.length > 0) {
+            try {
+                const resEmbeds = [];
+                for (const s of resumeSkills) {
+                    resEmbeds.push(await getEmbedding(s.toLowerCase().trim()));
+                }
+                const gitEmbeds = [];
+                for (const g of githubTechs) {
+                    gitEmbeds.push(await getEmbedding(g.toLowerCase().trim()));
+                }
+
+                for (let i = 0; i < resumeSkills.length; i++) {
+                    const s = resumeSkills[i];
+                    for (let j = 0; j < githubTechs.length; j++) {
+                        const g = githubTechs[j];
+                        if (resEmbeds[i] && gitEmbeds[j]) {
+                            const val = cosineSimilarity(resEmbeds[i], gitEmbeds[j]);
+                            similarities[s][g] = Math.max(similarities[s][g], val);
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error("Batch SBERT calculation failed", e);
+            }
+        }
+
+        // Fallback to Jaccard bigram similarity
+        for (const s of resumeSkills) {
+            for (const g of githubTechs) {
+                if (similarities[s][g] === 0.0) {
+                    const sClean = s.toLowerCase().trim();
+                    const gClean = g.toLowerCase().trim();
                     similarities[s][g] = this._charNgramSimilarity(sClean, gClean);
                 }
             }
@@ -78,7 +174,7 @@ class ConsistencyAuditor {
             // Check language
             if (repo.language && repo.language.toLowerCase().trim() === techClean) {
                 inRepo = true;
-                proofSnippets.append = proofSnippets.push({
+                proofSnippets.push({
                     repo: repo.name,
                     file: "Language Statistics",
                     snippet: `Repository primary language is set to ${repo.language}.`,
@@ -212,7 +308,7 @@ class ConsistencyAuditor {
         };
     }
 
-    audit(resumeData, githubData) {
+    async audit(resumeData, githubData) {
         const resumeSkills = resumeData.skills || [];
         const resumeTimeline = resumeData.timeline || {};
         const quantifiableClaims = resumeData.quantifiable_claims || [];
@@ -244,7 +340,7 @@ class ConsistencyAuditor {
         const githubTechs = [...githubTechsSet].sort();
 
         // 1. Compute similarities
-        const similarities = this.computeSimilaritiesBatch(resumeSkills, githubTechs);
+        const similarities = await this.computeSimilaritiesBatch(resumeSkills, githubTechs);
 
         // 2. Compute evidence strength
         const techEvidenceStrength = {};

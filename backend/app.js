@@ -58,7 +58,7 @@ app.post('/api/audit', upload.single('resume'), async (req, res) => {
 
         // 3. Perform Alignment Consistency Audit
         const auditor = new ConsistencyAuditor();
-        const auditResults = auditor.audit(resumeData, githubData);
+        const auditResults = await auditor.audit(resumeData, githubData);
 
         // 4. Return formatted response
         return res.json({
