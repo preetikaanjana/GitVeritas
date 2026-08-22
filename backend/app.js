@@ -42,7 +42,7 @@ app.post('/api/audit', upload.single('resume'), async (req, res) => {
     try {
         // 1. Initialize and Parse Resume
         const parser = new ResumeParser();
-        const rawText = await parser.extractText(file.path);
+        const rawText = await parser.extractText(file.path, file.originalname);
         const skills = parser.extractSkills(rawText);
         const quantifiableClaims = parser.extractQuantifiableClaims(rawText);
         

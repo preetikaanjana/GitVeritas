@@ -30,11 +30,12 @@ class ResumeParser {
         this.flatTaxonomy = [...new Set(this.flatTaxonomy)];
     }
 
-    async extractText(filePath) {
+    async extractText(filePath, originalName = null) {
         if (!fs.existsSync(filePath)) {
             throw new Error(`File not found: ${filePath}`);
         }
-        const ext = path.extname(filePath).toLowerCase();
+        const nameToUse = originalName || filePath;
+        const ext = path.extname(nameToUse).toLowerCase();
         if (ext === '.pdf') {
             return await this._extractPdfText(filePath);
         } else if (ext === '.docx' || ext === '.doc') {
