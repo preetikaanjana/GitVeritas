@@ -565,12 +565,62 @@ class ConsistencyAuditor {
         const totalSkillsCount = resumeSkills.length || 1;
         const consistencyIndex = Math.round((activeVerifiedCount / totalSkillsCount) * 100);
 
+        // Build evaluated claims (quantifiable claims evaluation)
+        const evaluatedClaims = [];
+        const collabPrs = prs.filter(pr => pr.is_collaborative);
+
+        for (const claim of quantifiableClaims) {
+            const claimLower = claim.toLowerCase();
+            const evidence = [];
+            let status = "No GitHub Evidence";
+
+            // Check collaborative/leadership claims
+            if (["lead", "led", "manage", "managed", "team", "collaborat"].some(w => claimLower.includes(w))) {
+                if (collabPrs.length > 0) {
+                    status = "Evidence Found";
+                    evidence.push(`Collaborated on ${collabPrs.length} external repository pull request(s).`);
+                }
+                if (prs.length > collabPrs.length) {
+                    status = "Evidence Found";
+                    evidence.push(`Created ${prs.length - collabPrs.length} pull request(s) on owned repositories.`);
+                }
+            }
+            
+            // Check scale/user traffic claims
+            if (["user", "traffic", "scale", "performance", "optimize"].some(w => claimLower.includes(w))) {
+                const totalStars = repos.reduce((acc, r) => acc + (r.stars || 0), 0);
+                if (totalStars > 0) {
+                    status = "Evidence Found";
+                    evidence.push(`Public repositories have accumulated ${totalStars} stars.`);
+                }
+            }
+
+            // Check tech mentions
+            for (const tech of githubTechs) {
+                const techClean = tech.toLowerCase().trim();
+                const sim = this._charNgramSimilarity(claimLower, techClean);
+                if (sim >= 0.50 || claimLower.includes(techClean)) {
+                    status = "Evidence Found";
+                    const techRepos = techEvidenceStrength[tech].repos || [];
+                    if (techRepos.length > 0) {
+                        evidence.push(`Active codebase in '${tech}' detected in repositories: ${techRepos.join(', ')}.`);
+                    }
+                }
+            }
+
+            evaluatedClaims.push({
+                claim: claim,
+                status: status,
+                evidence: evidence.length > 0 ? evidence.join(" ") : "No corresponding codebase metrics or public contributions found on GitHub."
+            });
+        }
+
         return {
-            consistency_index: consistencyIndex,
+            score: consistencyIndex,
             verified_claims: verifiedClaims,
             unsupported_claims: unsupportedClaims,
             unlisted_strengths: unlistedStrengths,
-            quantifiable_claims: quantifiableClaims.map(c => ({ claim: c, status: "No GitHub Evidence", evidence: [] }))
+            evaluated_claims: evaluatedClaims
         };
     }
 }
