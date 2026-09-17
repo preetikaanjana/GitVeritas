@@ -10,6 +10,7 @@ dotenv.config();
 const { ResumeParser } = require('./resume_parser');
 const { GitHubClient } = require('./github_client');
 const { ConsistencyAuditor } = require('./analyzer');
+const { generateRecruiterKit } = require('./ai_engine');
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -60,12 +61,16 @@ app.post('/api/audit', upload.single('resume'), async (req, res) => {
         const auditor = new ConsistencyAuditor();
         const auditResults = await auditor.audit(resumeData, githubData);
 
-        // 4. Return formatted response
+        // 4. Generate AI Recruiter Intelligence & Interview Questions
+        const candidateName = githubData.profile.name || githubUsername;
+        const aiRecruiterKit = await generateRecruiterKit(candidateName, auditResults);
+
+        // 5. Return formatted response
         return res.json({
             success: true,
             username: githubUsername,
             profile: {
-                name: githubData.profile.name || githubUsername,
+                name: candidateName,
                 avatar_url: githubData.profile.avatar_url,
                 bio: githubData.profile.bio,
                 public_repos: githubData.profile.public_repos || 0,
@@ -73,6 +78,7 @@ app.post('/api/audit', upload.single('resume'), async (req, res) => {
                 created_at: githubData.profile.created_at,
             },
             audit: auditResults,
+            ai_recruiter_kit: aiRecruiterKit,
             repositories_scanned: githubData.repositories.length,
             collaborative_prs_count: githubData.collaborative_prs_count
         });

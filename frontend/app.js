@@ -284,6 +284,47 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("scoreTitle").innerText = scoreTitle;
         document.getElementById("scoreDescription").innerText = scoreDesc;
 
+        // 2.5 Render Generative AI Recruiter Kit & Interview Questions
+        if (data.ai_recruiter_kit) {
+            const ai = data.ai_recruiter_kit;
+            const summaryEl = document.getElementById("aiExecutiveSummary");
+            if (summaryEl) summaryEl.innerText = ai.executive_summary || "Candidate evaluation generated.";
+
+            const pillEl = document.getElementById("authenticityPill");
+            if (pillEl && ai.authenticity) {
+                pillEl.innerText = `${ai.authenticity.verdict} (${ai.authenticity.score}%)`;
+                pillEl.className = `auth-pill ${ai.authenticity.score >= 75 ? 'auth-high' : ai.authenticity.score >= 50 ? 'auth-mid' : 'auth-low'}`;
+            }
+
+            const authNoteEl = document.getElementById("authenticityAnalysis");
+            if (authNoteEl && ai.authenticity) {
+                authNoteEl.innerHTML = `<strong>Authenticity Analysis:</strong> ${escapeHtml(ai.authenticity.analysis)}`;
+            }
+
+            const qCountEl = document.getElementById("aiQuestionCount");
+            const qListEl = document.getElementById("aiQuestionsList");
+            if (qListEl && ai.interview_questions) {
+                if (qCountEl) qCountEl.innerText = ai.interview_questions.length;
+                qListEl.innerHTML = "";
+                ai.interview_questions.forEach(q => {
+                    const qCard = document.createElement("div");
+                    qCard.className = "ai-q-card";
+                    qCard.innerHTML = `
+                        <div class="ai-q-header">
+                            <span class="ai-q-topic">⚡ ${escapeHtml(q.topic)}</span>
+                            <span class="ai-q-type">${escapeHtml(q.type)}</span>
+                        </div>
+                        <p class="ai-q-text">"${escapeHtml(q.question)}"</p>
+                        <div class="ai-q-notes">
+                            <div class="ai-q-signal"><strong>🎯 Target Signal:</strong> ${escapeHtml(q.target_signal)}</div>
+                            <div class="ai-q-expect"><strong>💡 Expected Answer:</strong> ${escapeHtml(q.expected_answer)}</div>
+                        </div>
+                    `;
+                    qListEl.appendChild(qCard);
+                });
+            }
+        }
+
         // 3. Render Buckets
         const verifiedList = document.getElementById("verifiedList");
         const unsupportedList = document.getElementById("unsupportedList");
@@ -311,11 +352,17 @@ document.addEventListener("DOMContentLoaded", () => {
                     `;
                 }
 
+                let mlBadge = "";
+                if (item.ml_assessment) {
+                    mlBadge = `<span class="ml-badge ${item.ml_assessment.badge_class}" title="${escapeHtml(item.ml_assessment.description)}">🤖 ML: ${item.ml_assessment.label} (${item.ml_assessment.confidence_pct}%)</span>`;
+                }
+
                 itemDiv.innerHTML = `
-                    <div class="item-main" style="display:flex; justify-content:space-between; align-items:center;">
-                        <div>
+                    <div class="item-main" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.4rem;">
+                        <div style="display:flex; align-items:center; flex-wrap:wrap; gap:0.4rem;">
                             <span class="item-title" style="font-weight:600;">${item.skill}</span>
-                            <span class="item-sub badge-success" style="padding: 0.1rem 0.4rem; border-radius:4px; font-size:0.7rem; margin-left: 0.4rem;">Match: ${item.matched_tech}</span>
+                            <span class="item-sub badge-success" style="padding: 0.1rem 0.4rem; border-radius:4px; font-size:0.7rem;">Match: ${item.matched_tech}</span>
+                            ${mlBadge}
                         </div>
                         <span class="accordion-indicator">▼</span>
                     </div>
@@ -350,9 +397,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 const itemDiv = document.createElement("div");
                 itemDiv.className = "audit-item";
                 
+                let mlBadge = "";
+                if (item.ml_assessment) {
+                    mlBadge = `<span class="ml-badge ${item.ml_assessment.badge_class}">🤖 ML: ${item.ml_assessment.label} (${item.ml_assessment.confidence_pct}%)</span>`;
+                }
+
                 itemDiv.innerHTML = `
-                    <div class="item-main">
+                    <div class="item-main" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.4rem;">
                         <span class="item-title" style="color: #fda4af; font-weight:600;">${item.skill}</span>
+                        ${mlBadge}
                     </div>
                     <p class="item-sub" style="margin-top: 0.4rem; line-height: 1.3; font-size:0.8rem;">${item.reason}</p>
                 `;

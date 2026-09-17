@@ -50,7 +50,21 @@ SBERT transforms words into 384-dimensional vector representations. We compute t
 $$\text{Similarity}(\mathbf{u}, \mathbf{v}) = \frac{\mathbf{u} \cdot \mathbf{v}}{\|\mathbf{u}\| \|\mathbf{v}\|} = \frac{\sum_{i=1}^{n} u_i v_i}{\sqrt{\sum_{i=1}^{n} u_i^2} \sqrt{\sum_{i=1}^{n} v_i^2}}$$
 A cosine similarity $\ge 0.65$ triggers a verified skill match.
 
-### 3. Jaccard Bigram Similarity (Fallback)
+### 3. Machine Learning: Supervised Legitimacy Classifier (`ai_engine.js`)
+Replaces flat rule thresholds with a multi-factor logistic probability model:
+$$z = w_{\text{sim}} \cdot \text{sim} + w_{\text{ev}} \cdot \left(\frac{\text{ev}}{100}\right) + w_{\text{commit}} \cdot \min\left(\frac{\text{commits}}{10}, 1\right) + w_{\text{star}} \cdot \min\left(\frac{\text{stars}}{5}, 1\right) - \text{penalty}_{\text{fork}} + \text{bias}$$
+$$P(\text{Legitimate}) = \frac{1}{1 + e^{-z}}$$
+*   **$P \ge 70\%$**: Marked as `"Verified Genuine"`.
+*   **$40\% \le P < 70\%$**: Marked as `"Starter / Tutorial"`.
+*   **$P < 40\%$**: Marked as `"Inflated Claim"`.
+
+### 4. Generative AI: Recruiter Intelligence & Probing Question Synthesis
+Uses LLM prompt synthesis (supporting Google Gemini or local deterministic synthesis) to turn discrepancies into structured recruiter insights:
+*   **Executive Hiring Brief**: High-level candidate authenticity summary for recruiters.
+*   **Tailored Technical Questions**: Probing interview questions targeting specific unverified technologies or deep-diving into verified strengths.
+*   **Code Authenticity Score**: Flags organic development vs. tutorial template copying.
+
+### 5. Jaccard Bigram Similarity (Fallback)
 If the AI model is offline or has missing embeddings, the system falls back to character-level Jaccard bigram similarity. We break both words into character pairs (bigrams) and divide the size of their intersection by their union:
 $$J(S_1, S_2) = \frac{|B(S_1) \cap B(S_2)|}{|B(S_1) \cup B(S_2)|}$$
 

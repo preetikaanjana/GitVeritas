@@ -1984,3 +1984,256 @@ body.light-theme .verified-box .verified-hash {
     color: #64748b;
 }
 
+/* ========================================================
+   Generative AI & Machine Learning Component Styling
+   ======================================================== */
+
+.ai-recruiter-card {
+    padding: 1.8rem;
+    border-radius: 16px;
+    border: 1px solid rgba(168, 85, 247, 0.25);
+    background: linear-gradient(135deg, rgba(26, 16, 38, 0.6) 0%, rgba(35, 14, 45, 0.4) 100%);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.25);
+}
+
+body.light-theme .ai-recruiter-card {
+    background: linear-gradient(135deg, rgba(250, 245, 255, 0.95) 0%, rgba(243, 232, 255, 0.9) 100%);
+    border: 1px solid rgba(147, 51, 234, 0.2);
+    box-shadow: 0 12px 36px rgba(147, 51, 234, 0.08);
+}
+
+.ai-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+body.light-theme .ai-header-row {
+    border-bottom: 1px solid rgba(36, 15, 43, 0.08);
+}
+
+.ai-sparkle-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: linear-gradient(90deg, #9333ea, #ec4899);
+    color: #ffffff;
+    box-shadow: 0 2px 10px rgba(236, 72, 153, 0.3);
+}
+
+.authenticity-badge-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.25rem;
+}
+
+.auth-label {
+    font-size: 0.72rem;
+    color: var(--color-text-sub);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.auth-pill {
+    padding: 0.35rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.auth-high {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.auth-mid {
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.auth-low {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.ai-dossier-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 1.5rem;
+}
+
+@media (max-width: 900px) {
+    .ai-dossier-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.dossier-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.dossier-block-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.dossier-block-header h4 {
+    margin: 0;
+    font-size: 1.05rem;
+    color: var(--color-text-main);
+}
+
+.ai-summary-text {
+    font-size: 0.92rem;
+    line-height: 1.6;
+    color: var(--color-text-main);
+    background: rgba(255, 255, 255, 0.03);
+    padding: 1rem;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+body.light-theme .ai-summary-text {
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(36, 15, 43, 0.06);
+}
+
+.auth-sub-note {
+    font-size: 0.8rem;
+    color: var(--color-text-sub);
+    line-height: 1.4;
+}
+
+.dossier-sub {
+    font-size: 0.8rem;
+    color: var(--color-text-sub);
+    margin: 0;
+}
+
+.ai-questions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    max-height: 380px;
+    overflow-y: auto;
+    padding-right: 0.3rem;
+}
+
+.ai-q-card {
+    padding: 0.95rem;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.ai-q-card:hover {
+    border-color: rgba(168, 85, 247, 0.4);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+body.light-theme .ai-q-card {
+    background: #ffffff;
+    border: 1px solid rgba(36, 15, 43, 0.08);
+}
+
+body.light-theme .ai-q-card:hover {
+    border-color: rgba(147, 51, 234, 0.4);
+    box-shadow: 0 4px 12px rgba(147, 51, 234, 0.08);
+}
+
+.ai-q-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ai-q-topic {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #c084fc;
+}
+
+body.light-theme .ai-q-topic {
+    color: #7c3aed;
+}
+
+.ai-q-type {
+    font-size: 0.7rem;
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--color-text-sub);
+}
+
+.ai-q-text {
+    font-size: 0.88rem;
+    line-height: 1.45;
+    font-weight: 500;
+    color: var(--color-text-main);
+    margin: 0;
+}
+
+.ai-q-notes {
+    font-size: 0.78rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    color: var(--color-text-sub);
+    padding-top: 0.4rem;
+    border-top: 1px dashed rgba(255, 255, 255, 0.08);
+}
+
+body.light-theme .ai-q-notes {
+    border-top: 1px dashed rgba(36, 15, 43, 0.08);
+}
+
+/* Machine Learning Pills */
+.ml-badge {
+    font-size: 0.68rem;
+    font-weight: 600;
+    padding: 0.12rem 0.45rem;
+    border-radius: 9999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+}
+
+.badge-genuine {
+    background: rgba(16, 185, 129, 0.12);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.badge-tutorial {
+    background: rgba(245, 158, 11, 0.12);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+.badge-inflated {
+    background: rgba(239, 68, 68, 0.12);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.25);
+}
+

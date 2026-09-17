@@ -1,4 +1,5 @@
 const { TECH_TAXONOMY } = require('./resume_parser');
+const { classifySkillLegitimacy } = require('./ai_engine');
 
 // Disable SSL certificate validation to prevent model download failures
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
@@ -367,6 +368,15 @@ class ConsistencyAuditor {
                 const gitEnd = gitYears.length > 0 ? Math.max(...gitYears) : 2026;
                 const totalCommits = repos.reduce((acc, r) => acc + (r.commits_by_user || 0), 0);
 
+                const gitMl = classifySkillLegitimacy({
+                    sbertSimilarity: 1.0,
+                    evidenceStrength: 100,
+                    totalCommits: totalCommits,
+                    stars: Math.max(...repos.map(r => r.stars || 0), 0),
+                    isFork: false,
+                    isArchived: false
+                });
+
                 verifiedClaims.push({
                     skill: skill,
                     matched_tech: "git",
@@ -382,7 +392,8 @@ class ConsistencyAuditor {
                         snippet: `Active public repository: ${r.name}`,
                         type: "git"
                     })),
-                    breakdown: { repos: 45, recency: 25, usage: 20, activity: 10, raw: 100 }
+                    breakdown: { repos: 45, recency: 25, usage: 20, activity: 10, raw: 100 },
+                    ml_assessment: gitMl
                 });
                 claimMatchScores.push(1.0);
                 continue;
@@ -414,6 +425,15 @@ class ConsistencyAuditor {
                     const gitStart = gitYears.length > 0 ? Math.min(...gitYears) : 2026;
                     const gitEnd = gitYears.length > 0 ? Math.max(...gitYears) : 2026;
 
+                    const htmlMl = classifySkillLegitimacy({
+                        sbertSimilarity: 1.0,
+                        evidenceStrength: evStrength,
+                        totalCommits: totalCommits,
+                        stars: Math.max(...matchedRepos.map(r => r.stars || 0), 0),
+                        isFork: matchedRepos.every(r => r.is_fork),
+                        isArchived: matchedRepos.every(r => r.is_archived)
+                    });
+
                     verifiedClaims.push({
                         skill: skill,
                         matched_tech: matchedWebTech,
@@ -429,7 +449,8 @@ class ConsistencyAuditor {
                             snippet: `Implicitly verified via ${matchedWebTech} code footprint.`,
                             type: "implicit"
                         })),
-                        breakdown: evData.breakdown
+                        breakdown: evData.breakdown,
+                        ml_assessment: htmlMl
                     });
                     claimMatchScores.push(1.0);
                     continue;
@@ -454,12 +475,22 @@ class ConsistencyAuditor {
                 const evStrength = evData.score;
 
                 if (evStrength < 15) {
+                    const weakMl = classifySkillLegitimacy({
+                        sbertSimilarity: bestSimilarity,
+                        evidenceStrength: evStrength,
+                        totalCommits: 0,
+                        stars: 0,
+                        isFork: false,
+                        isArchived: false
+                    });
+
                     unsupportedClaims.push({
                         skill: skill,
                         reason: `Matches '${bestMatchTech}' (similarity: ${Math.round(bestSimilarity * 100)}%), but evidence is too weak (strength score: ${evStrength}%).`,
                         matched_tech: bestMatchTech,
                         similarity: Math.round(bestSimilarity * 100) / 100,
-                        recommendation: `Contribute more code or commit configuration files using '${bestMatchTech}' in repositories.`
+                        recommendation: `Contribute more code or commit configuration files using '${bestMatchTech}' in repositories.`,
+                        ml_assessment: weakMl
                     });
                     claimMatchScores.push(bestSimilarity * (evStrength / 100.0));
                     continue;
@@ -491,6 +522,15 @@ class ConsistencyAuditor {
                     }
                 }
 
+                const verifiedMl = classifySkillLegitimacy({
+                    sbertSimilarity: bestSimilarity,
+                    evidenceStrength: evStrength,
+                    totalCommits: totalCommits,
+                    stars: Math.max(...matchedRepos.map(r => r.stars || 0), 0),
+                    isFork: matchedRepos.every(r => r.is_fork),
+                    isArchived: matchedRepos.every(r => r.is_archived)
+                });
+
                 verifiedClaims.push({
                     skill: skill,
                     matched_tech: bestMatchTech,
@@ -501,15 +541,26 @@ class ConsistencyAuditor {
                     timeline_warning: timelineWarning,
                     repos: evData.repos,
                     proofs: [],
-                    breakdown: evData.breakdown
+                    breakdown: evData.breakdown,
+                    ml_assessment: verifiedMl
                 });
                 claimMatchScores.push(1.0);
             } else {
+                const unverifiedMl = classifySkillLegitimacy({
+                    sbertSimilarity: 0,
+                    evidenceStrength: 0,
+                    totalCommits: 0,
+                    stars: 0,
+                    isFork: false,
+                    isArchived: false
+                });
+
                 unsupportedClaims.push({
                     skill: skill,
                     reason: "No semantically matching technologies found in scanned repositories.",
                     similarity: 0.0,
-                    recommendation: `Add a public project using '${skill}' to your GitHub profile to back up this claim.`
+                    recommendation: `Add a public project using '${skill}' to your GitHub profile to back up this claim.`,
+                    ml_assessment: unverifiedMl
                 });
                 claimMatchScores.push(0.0);
             }

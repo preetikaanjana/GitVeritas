@@ -188,6 +188,43 @@
                 </div>
             </div>
 
+            <!-- AI Recruiter Intelligence & Interview Kit -->
+            <div class="ai-recruiter-card glass" id="aiRecruiterCard" style="margin-top: 1.8rem; margin-bottom: 2rem;">
+                <div class="ai-header-row">
+                    <div class="ai-title-wrap">
+                        <span class="ai-sparkle-badge">✨ Generative AI & Machine Learning Intelligence</span>
+                        <h3 style="margin-top: 0.4rem; margin-bottom: 0.25rem;">Candidate Dossier & Technical Interview Kit</h3>
+                        <p class="section-desc" style="margin-bottom:0;">Synthesized using SBERT semantic embeddings and multi-factor ML verification to guide technical screening.</p>
+                    </div>
+                    <div class="authenticity-badge-wrap" id="authenticityBadgeWrap">
+                        <span class="auth-label">Code Authenticity</span>
+                        <span class="auth-pill" id="authenticityPill">Analyzing...</span>
+                    </div>
+                </div>
+
+                <div class="ai-dossier-grid">
+                    <!-- Executive Brief -->
+                    <div class="dossier-block">
+                        <div class="dossier-block-header">
+                            <span class="dossier-icon">📋</span>
+                            <h4>Executive Hiring Brief</h4>
+                        </div>
+                        <p id="aiExecutiveSummary" class="ai-summary-text">AI candidate summary will generate here after analysis.</p>
+                        <div class="auth-sub-note" id="authenticityAnalysis"></div>
+                    </div>
+
+                    <!-- Targeted Interview Questions -->
+                    <div class="dossier-block">
+                        <div class="dossier-block-header">
+                            <span class="dossier-icon">🎯</span>
+                            <h4>Probing Interview Questions (<span id="aiQuestionCount">0</span>)</h4>
+                        </div>
+                        <p class="dossier-sub">Targeted questions based on candidate's exact gaps and verified technologies:</p>
+                        <div class="ai-questions-list" id="aiQuestionsList"></div>
+                    </div>
+                </div>
+            </div>
+
             <!-- The Three Buckets Grid -->
             <div class="buckets-grid">
                 <!-- Bucket 1: Verified -->
