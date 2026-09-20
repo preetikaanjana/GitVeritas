@@ -7,6 +7,7 @@ __pycache__/
 *.pyc
 *.db
 gitveritas_interview_answers.md
+project_summary.md
 .system_generated/
 .agents/
 .idea/
