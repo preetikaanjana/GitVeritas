@@ -323,6 +323,42 @@ document.addEventListener("DOMContentLoaded", () => {
                     qListEl.appendChild(qCard);
                 });
             }
+
+            // Render Code-Grounded Probing Questions (Code RAG)
+            const codeGroundedListEl = document.getElementById("codeGroundedList");
+            const codeGroundedCountEl = document.getElementById("codeGroundedCount");
+            const codeGroundedBlockEl = document.getElementById("codeGroundedBlock");
+            const codeQuestions = ai.code_grounded_questions || [];
+
+            if (codeGroundedBlockEl) {
+                if (codeQuestions.length > 0) {
+                    codeGroundedBlockEl.style.display = "block";
+                    if (codeGroundedCountEl) codeGroundedCountEl.innerText = codeQuestions.length;
+                    if (codeGroundedListEl) {
+                        codeGroundedListEl.innerHTML = "";
+                        codeQuestions.forEach(q => {
+                            const card = document.createElement("div");
+                            card.className = "ai-q-card";
+                            card.innerHTML = `
+                                <div class="ai-q-header">
+                                    <span class="ai-q-topic">🔬 ${escapeHtml(q.topic)}</span>
+                                    <span class="code-evidence-repo">${escapeHtml(q.repository || 'Codebase')}</span>
+                                    <span class="code-evidence-file">📄 ${escapeHtml(q.file_path || '')}${q.line_range ? `:${q.line_range}` : ''}</span>
+                                </div>
+                                <p class="ai-q-text">"${escapeHtml(q.question)}"</p>
+                                ${q.supporting_snippet ? `<pre class="code-evidence-snippet" style="margin: 0.5rem 0;"><code>${escapeHtml(q.supporting_snippet)}</code></pre>` : ''}
+                                <div class="ai-q-notes">
+                                    <div class="ai-q-signal"><strong>🎯 Target Signal:</strong> ${escapeHtml(q.target_signal)}</div>
+                                    <div class="ai-q-expect"><strong>💡 Expected Answer:</strong> ${escapeHtml(q.expected_answer)}</div>
+                                </div>
+                            `;
+                            codeGroundedListEl.appendChild(card);
+                        });
+                    }
+                } else {
+                    codeGroundedBlockEl.style.display = "none";
+                }
+            }
         }
 
         // 3. Render Buckets
@@ -501,6 +537,34 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         }
 
+        // 5.5 Render Code RAG Evidence Explorer
+        const codeEvidenceListEl = document.getElementById("codeEvidenceList");
+        const codeEvidenceBadgeEl = document.getElementById("codeEvidenceBadge");
+        if (codeEvidenceListEl) {
+            codeEvidenceListEl.innerHTML = "";
+            const snippets = data.code_evidence || [];
+            if (codeEvidenceBadgeEl) codeEvidenceBadgeEl.innerText = `${snippets.length} Snippets Indexed`;
+            if (snippets.length === 0) {
+                codeEvidenceListEl.innerHTML = `<p class="item-sub">No relevant public code snippets found for indexed repositories.</p>`;
+            } else {
+                snippets.forEach(chunk => {
+                    const item = document.createElement("div");
+                    item.className = "code-evidence-item";
+                    item.innerHTML = `
+                        <div class="code-evidence-header">
+                            <div class="code-evidence-meta">
+                                <span class="code-evidence-repo">${escapeHtml(chunk.repo_name)}</span>
+                                <span class="code-evidence-file">📄 ${escapeHtml(chunk.file_path)} (Lines ${chunk.start_line}-${chunk.end_line})</span>
+                            </div>
+                            <span class="ml-badge badge-genuine">${escapeHtml(chunk.symbol_name || chunk.language)}</span>
+                        </div>
+                        <pre class="code-evidence-snippet"><code>${escapeHtml(chunk.content)}</code></pre>
+                    `;
+                    codeEvidenceListEl.appendChild(item);
+                });
+            }
+        }
+
         // 6. Setup Accordion Event Handlers if not already configured
         if (!window.accordionHandlerRegistered) {
             document.addEventListener("click", (e) => {
@@ -517,6 +581,104 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Show Dashboard
         resultsDashboard.classList.remove("hidden");
+    }
+
+    // Recruiter Codebase Copilot Chat Functions
+    function appendCopilotMessage(sender, text, citations = []) {
+        const messagesEl = document.getElementById("copilotMessages");
+        if (!messagesEl) return;
+
+        const msgDiv = document.createElement("div");
+        msgDiv.className = `copilot-msg ${sender}`;
+
+        let citationsHtml = "";
+        if (Array.isArray(citations) && citations.length > 0) {
+            citationsHtml = `
+                <div class="copilot-citations">
+                    <span style="font-size:0.72rem; color:var(--color-text-sub); font-weight:600;">CITATIONS:</span>
+                    <div style="display:flex; flex-wrap:wrap; gap:0.4rem;">
+                        ${citations.map(c => `<span class="citation-pill">📄 ${escapeHtml(c.repository)}/${escapeHtml(c.file_path)}:${escapeHtml(c.line_range || '')}</span>`).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        let formattedText = escapeHtml(text)
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/`([^`]+)`/g, '<code style="background:rgba(255,255,255,0.08); padding:0.1rem 0.3rem; border-radius:4px;">$1</code>')
+            .replace(/\n/g, '<br>');
+
+        msgDiv.innerHTML = `
+            <div class="copilot-msg-avatar">${sender === 'user' ? '👤' : '🤖'}</div>
+            <div class="copilot-msg-body">
+                <p>${formattedText}</p>
+                ${citationsHtml}
+            </div>
+        `;
+
+        messagesEl.appendChild(msgDiv);
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    // Set up Copilot Chat prompt chips & form
+    const copilotForm = document.getElementById("copilotForm");
+    if (copilotForm) {
+        document.querySelectorAll(".copilot-chip").forEach(chip => {
+            chip.addEventListener("click", () => {
+                const input = document.getElementById("copilotInput");
+                if (input) {
+                    input.value = chip.getAttribute("data-query");
+                    copilotForm.dispatchEvent(new Event("submit"));
+                }
+            });
+        });
+
+        copilotForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const input = document.getElementById("copilotInput");
+            const question = input ? input.value.trim() : "";
+            if (!question) return;
+
+            const usernameInput = document.getElementById("github_username");
+            const username = (lastAuditData && lastAuditData.username) ? lastAuditData.username : (usernameInput ? usernameInput.value.trim() : "");
+            const tokenInput = document.getElementById("github_token");
+            const token = tokenInput ? tokenInput.value.trim() : "";
+
+            if (!username) {
+                appendCopilotMessage("bot", "⚠️ Please enter a GitHub username or complete an audit above before asking questions.");
+                return;
+            }
+
+            appendCopilotMessage("user", question);
+            if (input) input.value = "";
+
+            const sendBtn = document.getElementById("copilotSendBtn");
+            const spinner = document.getElementById("copilotSpinner");
+            if (sendBtn) sendBtn.disabled = true;
+            if (spinner) spinner.classList.remove("hidden");
+
+            try {
+                const res = await fetch("/api/code-chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        username,
+                        question,
+                        github_token: token
+                    })
+                });
+                const chatData = await res.json();
+                if (!res.ok) {
+                    throw new Error(chatData.error || "Failed to query codebase.");
+                }
+                appendCopilotMessage("bot", chatData.answer, chatData.citations);
+            } catch (err) {
+                appendCopilotMessage("bot", `⚠️ Request failed: ${err.message}`);
+            } finally {
+                if (sendBtn) sendBtn.disabled = false;
+                if (spinner) spinner.classList.add("hidden");
+            }
+        });
     }
 
     function roundVal(val) {

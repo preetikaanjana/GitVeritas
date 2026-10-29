@@ -222,6 +222,16 @@
                         <p class="dossier-sub">Targeted questions based on candidate's exact gaps and verified technologies:</p>
                         <div class="ai-questions-list" id="aiQuestionsList"></div>
                     </div>
+
+                    <!-- Code-Grounded Probing Questions (Code RAG) -->
+                    <div class="dossier-block dossier-block-full" id="codeGroundedBlock">
+                        <div class="dossier-block-header">
+                            <span class="dossier-icon">🔬</span>
+                            <h4>Code-Grounded Technical Probes (<span id="codeGroundedCount">0</span>)</h4>
+                        </div>
+                        <p class="dossier-sub">Evidence-backed questions directly tied to public repository source files and functions:</p>
+                        <div class="ai-questions-list" id="codeGroundedList"></div>
+                    </div>
                 </div>
             </div>
 
@@ -274,6 +284,71 @@
                     <p class="section-desc">Practical steps to resolve unsupported resume claims and strengthen your developer verification profile.</p>
                 </div>
                 <div class="recommendations-list" id="recommendationsList" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem;"></div>
+            </div>
+
+            <!-- Code RAG Evidence Explorer -->
+            <div class="claims-audit-card glass" id="codeEvidenceCard" style="margin-top: 2rem;">
+                <div class="claims-header" style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem;">
+                    <div>
+                        <h3>🔬 Code RAG Source Evidence Explorer</h3>
+                        <p class="section-desc">Retrieved source-code functions and classes validating resume claims, indexed via AST chunking & SBERT vector search.</p>
+                    </div>
+                    <span class="auth-pill auth-high" id="codeEvidenceBadge">0 Snippets Indexed</span>
+                </div>
+                <div class="code-evidence-list" id="codeEvidenceList" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+                    <p class="item-sub">No code snippets retrieved yet.</p>
+                </div>
+            </div>
+
+            <!-- Recruiter Codebase Copilot (Interactive Chat) -->
+            <div class="claims-audit-card glass" id="recruiterCopilotCard" style="margin-top: 2rem;">
+                <div class="claims-header">
+                    <div style="display:flex; align-items:center; gap:0.5rem;">
+                        <span style="font-size:1.5rem;">🤖</span>
+                        <div>
+                            <h3 style="margin-bottom:0.2rem;">Recruiter Codebase Copilot</h3>
+                            <p class="section-desc" style="margin-bottom:0;">Ask technical questions grounded in the candidate's indexed repositories with citations.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Prompt Chips -->
+                <div class="copilot-chips-wrap">
+                    <span class="copilot-chip-label">Quick Probes:</span>
+                    <button type="button" class="copilot-chip" data-query="Where is authentication implemented?">🔐 Authentication</button>
+                    <button type="button" class="copilot-chip" data-query="Does this repository contain unit tests?">🧪 Unit Tests</button>
+                    <button type="button" class="copilot-chip" data-query="How does the application connect to its database?">🗄️ Database Connection</button>
+                    <button type="button" class="copilot-chip" data-query="Where is error handling implemented?">⚠️ Error Handling</button>
+                </div>
+
+                <!-- Chat History Container -->
+                <div class="copilot-chat-container">
+                    <div class="copilot-messages" id="copilotMessages">
+                        <div class="copilot-msg bot">
+                            <div class="copilot-msg-avatar">🤖</div>
+                            <div class="copilot-msg-body">
+                                <p>Hello! I am your <strong>Recruiter Codebase Copilot</strong>. Ask me anything about the candidate's public source code, architecture, testing patterns, or specific technologies.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Input Bar -->
+                    <form id="copilotForm" class="copilot-input-bar">
+                        <input type="text" id="copilotInput" placeholder="Ask about this codebase (e.g. How are API routes structured?)..." autocomplete="off">
+                        <button type="submit" id="copilotSendBtn" class="btn btn-purple">
+                            <span>Ask</span>
+                            <div class="spinner hidden" id="copilotSpinner"></div>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Authorship Disclaimer Banner -->
+            <div class="authorship-disclaimer glass" style="margin-top: 2rem; padding: 1.2rem; border-radius: 12px; border: 1px solid var(--color-warning-border); background: var(--color-warning-bg); color: var(--color-warning-text); display:flex; align-items:center; gap:0.8rem;">
+                <span style="font-size:1.4rem;">⚠️</span>
+                <p style="font-size:0.85rem; margin:0;">
+                    <strong>Authorship Disclaimer:</strong> GitVeritas Code RAG evaluates publicly available repository evidence to ground technical screening. This analysis cannot conclusively prove individual personal code authorship (e.g. contributions could be from teammates, open-source libraries, or tutorial templates).
+                </p>
             </div>
         </main>
 

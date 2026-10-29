@@ -5,7 +5,8 @@
   "main": "backend/app.js",
   "scripts": {
     "build": "npm install --omit=optional",
-    "start": "node backend/app.js"
+    "start": "node backend/app.js",
+    "test": "node test/code_rag.test.js"
   },
   "engines": {
     "node": ">=18.0.0 <=22.x"

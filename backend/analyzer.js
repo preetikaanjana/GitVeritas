@@ -676,4 +676,9 @@ class ConsistencyAuditor {
     }
 }
 
-module.exports = { ConsistencyAuditor };
+module.exports = { 
+    ConsistencyAuditor,
+    getEmbedding,
+    cosineSimilarity,
+    getPipeline
+};

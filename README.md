@@ -28,6 +28,8 @@
   * 🟡 **Starter / Tutorial (40% – 69%):** Basic starter projects, school assignments, or tutorial templates.
   * 🔴 **Inflated Claim (< 40%):** Minimal or zero public repository evidence, or unedited forked repositories.
 * **🤖 Generative AI Recruiter Intelligence:** Leverages **Google Gemini 1.5 Flash** with dynamic JSON schema enforcement (and a zero-latency local synthesizer fallback) to generate executive hiring summaries, code authenticity scores, and tailored technical interview questions.
+* **🔬 In-Engine Code RAG Pipeline:** Indexes candidate repositories with language-aware AST chunking (JS/TS, Python, Java), sanitizes credentials/secrets, generates 384-d vector embeddings, and stores them in SQLite.
+* **💬 Recruiter Codebase Copilot (`/api/code-chat`):** Interactive grounded Q&A endpoint allowing technical recruiters to query the candidate's codebase with exact file path and line citations.
 * **⚡ High-Throughput Relational Caching:** Embedded **SQLite3 caching engine** prevents API rate limits, supporting **5,000+ requests/hour** on under **80MB RAM**.
 * **🛡️ Dynamic Verification Certificates:** Generates printable, high-contrast credibility cards and seals rendered natively via SVG.
 
@@ -47,10 +49,75 @@ graph TD
     E --> F[ai_engine: 6-Feature Logistic Regression Classifier]
     F --> G[Sigmoid Activation & 3-Tier Legitimacy Probability]
     
-    G --> H[Google Gemini 1.5 Flash / Local Synthesizer Recruiter Kit]
-    H --> I[JSON Payload to Vanilla JS Frontend]
-    I --> J[Dynamic Dashboard, CSS Conic Charts & SVG Certificate]
+    D --> H[code_indexer: Bounded Ingestion & AST/Regex Chunking]
+    H --> I[code_retriever: SBERT Vector Embeddings & SQLite Cache]
+    
+    G --> J[ai_engine: Google Gemini 1.5 Flash Code-Grounded Recruiter Kit]
+    I --> J
+    J --> K[JSON Payload & Frontend Dashboard]
+    
+    L[Recruiter Query] --> M[POST /api/code-chat Copilot Endpoint]
+    I --> M
+    M --> N[Evidence Answer with File & Line Citations]
 ```
+
+---
+
+## 🚀 API Reference
+
+### 1. `POST /api/audit`
+Performs complete resume-to-codebase audit and Code RAG indexing.
+* **Content-Type**: `multipart/form-data`
+* **Parameters**:
+  * `resume`: File (PDF or DOCX, max 5MB)
+  * `github_username`: String
+  * `github_token`: String (optional)
+* **Response**:
+  ```json
+  {
+    "success": true,
+    "username": "candidate",
+    "audit": { "score": 85, "verified_claims": [...], "unsupported_claims": [...] },
+    "ai_recruiter_kit": {
+      "executive_summary": "...",
+      "code_grounded_questions": [
+        {
+          "topic": "AuthService",
+          "repository": "ecommerce-api",
+          "file_path": "controllers/auth.js",
+          "line_range": "15-42",
+          "question": "In controllers/auth.js lines 15-42, how did you handle token expiration?"
+        }
+      ]
+    },
+    "code_evidence": [...]
+  }
+  ```
+
+### 2. `POST /api/code-chat`
+Recruiter Codebase Copilot for asking technical questions about indexed repositories.
+* **Content-Type**: `application/json`
+* **Payload**:
+  ```json
+  {
+    "username": "candidate",
+    "question": "Where is authentication implemented?",
+    "repo": "optional-repo-name",
+    "github_token": "optional-token"
+  }
+  ```
+* **Response**:
+  ```json
+  {
+    "success": true,
+    "answer": "Authentication is implemented using JWT in `controllers/auth.js`...",
+    "citations": [
+      { "repository": "api-service", "file_path": "controllers/auth.js", "line_range": "12-38" }
+    ],
+    "evidence_found": true,
+    "disclaimer": "Analysis evaluates public repository evidence and cannot conclusively prove individual code authorship."
+  }
+  ```
 
 ---
 
@@ -74,14 +141,18 @@ graph TD
    ```
 
 3. **Configure Environment Variables (Optional):**
-   Create a `.env` file in the root directory:
-   ```env
-   PORT=8000
-   GITHUB_PAT=your_github_personal_access_token_optional
-   GEMINI_API_KEY=your_google_gemini_api_key_optional
+   Copy the example environment configuration:
+   ```bash
+   cp .env.example .env
+   ```
+   Add your `GEMINI_API_KEY` to enable live LLM generation (fallback synthesizer operates automatically offline).
+
+4. **Run Tests:**
+   ```bash
+   npm test
    ```
 
-4. **Start the server:**
+5. **Start the server:**
    ```bash
    npm start
    ```
@@ -93,25 +164,25 @@ graph TD
 
 | Layer | Component | Technology | Role |
 | :--- | :--- | :--- | :--- |
-| **Frontend** | UI & Dashboard | Vanilla JS (ES6+), HTML5, CSS3 | Zero-build SPA with CSS Conic Gradients & client-side SVG certificate engine |
-| **Backend** | REST API Server | Node.js, Express.js, Multer | Non-blocking asynchronous ingestion & parallel crawler coordinator |
-| **Parsing** | Document Extractors | `pdf-parse`, `mammoth` | In-memory text extraction for multi-format resumes |
-| **Caching** | Embedded Storage | SQLite3 (`github_cache.db`) | Relational cache preventing GitHub API rate limits (5,000+ req/hr) |
-| **AI / NLP** | Vector Embeddings | `@xenova/transformers` (SBERT) | 384-dimensional dense semantic similarity via WebAssembly (ONNX Runtime) |
+| **Frontend** | UI & Dashboard | Vanilla JS (ES6+), HTML5, CSS3 | Zero-build SPA with Code Evidence Explorer & Interactive Copilot Chat |
+| **Backend** | REST API Server | Node.js, Express.js, Multer | Ingestion, parallel crawler coordinator & `/api/code-chat` endpoint |
+| **Parsing & Chunking**| AST Code Chunker | `code_indexer.js` | Language-aware function/class parsing for JS/TS, Python, Java |
+| **Caching & Vectors** | Embedded Storage | SQLite3 (`github_cache.db`) | Relational cache and vector embedding store (384-d floats) |
+| **AI / Embeddings** | Vector Embeddings | `@xenova/transformers` (SBERT) | 384-dimensional dense semantic similarity via WebAssembly (ONNX Runtime) |
 | **Machine Learning** | Legitimacy Classifier | Supervised Logistic Regression | Custom 6-feature probabilistic classifier (86.7% accuracy, 92.3% precision) |
-| **Generative AI** | Recruiter Intelligence | Google Gemini 1.5 Flash LLM | Executive hiring briefs & tailored interview question synthesis |
+| **Generative AI** | Grounded Q&A | Google Gemini 1.5 Flash LLM | Grounded interview generation & Recruiter Codebase Copilot |
 
 ---
 
-## 📈 Performance & Benchmarks
+## 🛡️ Security & Disclaimers
 
-* **Latency:** Audits completed in **under 8 seconds** (down from 30+ seconds without SQLite caching).
-* **Throughput:** Authenticated caching supports **5,000+ API requests/hour**.
-* **Memory Footprint:** Operates under **80MB RAM** due to the lightweight WebAssembly port of SBERT and native JS ML inference.
-* **ML Precision:** **92.3% precision** on Verified Genuine claims; **100% recall** on Inflated Claims.
+* **Secret Redaction**: All source files pass through automated sanitization prior to chunking or LLM transmission, scrubbing tokens (`ghp_`, `sk-`, `AIza`), AWS keys, private keys, and connection strings.
+* **Prompt Injection Defense**: Repository code is treated strictly as untrusted data using explicit delimiter guards, blocking instruction overrides inside comments.
+* **Authorship Disclaimer**: Analysis evaluates public repository evidence and does not conclusively verify individual personal authorship (e.g., contributions could stem from group work, starter templates, or dependencies).
 
 ---
 
 ## 📜 License
 
 Distributed under the MIT License. See `LICENSE` for more information.
+
