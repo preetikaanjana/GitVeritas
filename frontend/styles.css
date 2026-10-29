@@ -2435,3 +2435,143 @@ body.light-theme .ai-q-notes {
     border-color: var(--color-accent-purple);
 }
 
+/* ========================================================
+   Light Theme Overrides for Code RAG & Copilot
+   ======================================================== */
+body.light-theme #recruiterCopilotCard,
+body.light-theme #codeEvidenceCard {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(250, 245, 255, 0.92) 100%) !important;
+    border: 1px solid rgba(147, 51, 234, 0.22) !important;
+    box-shadow: 0 12px 36px rgba(147, 51, 234, 0.08) !important;
+}
+
+body.light-theme #recruiterCopilotCard h3,
+body.light-theme #codeEvidenceCard h3 {
+    color: #240f2b !important;
+}
+
+body.light-theme #recruiterCopilotCard .section-desc,
+body.light-theme #codeEvidenceCard .section-desc {
+    color: #63526a !important;
+}
+
+body.light-theme .copilot-chips-wrap {
+    background: transparent;
+}
+
+body.light-theme .copilot-chip-label {
+    color: #63526a !important;
+    font-weight: 600;
+}
+
+body.light-theme .copilot-chip {
+    background: rgba(147, 51, 234, 0.08) !important;
+    border: 1px solid rgba(147, 51, 234, 0.22) !important;
+    color: #6b21a8 !important;
+    font-weight: 500;
+}
+
+body.light-theme .copilot-chip:hover {
+    background: rgba(147, 51, 234, 0.16) !important;
+    border-color: #9333ea !important;
+    color: #581c87 !important;
+}
+
+body.light-theme .copilot-messages {
+    background: rgba(245, 243, 255, 0.6);
+    border: 1px solid rgba(147, 51, 234, 0.15);
+    border-radius: 12px;
+    padding: 1rem;
+}
+
+body.light-theme .copilot-msg-body {
+    background: #ffffff !important;
+    border: 1px solid rgba(147, 51, 234, 0.18) !important;
+    color: #240f2b !important;
+    box-shadow: 0 2px 10px rgba(147, 51, 234, 0.05);
+}
+
+body.light-theme .copilot-msg-body p {
+    color: #240f2b !important;
+}
+
+body.light-theme .copilot-msg.user .copilot-msg-body {
+    background: linear-gradient(135deg, #f3e8ff 0%, #fae8ff 100%) !important;
+    border: 1px solid rgba(147, 51, 234, 0.35) !important;
+    color: #3b0764 !important;
+}
+
+body.light-theme .copilot-msg.user .copilot-msg-body p {
+    color: #3b0764 !important;
+}
+
+body.light-theme .copilot-msg-avatar {
+    background: #f3e8ff !important;
+    border: 1px solid rgba(147, 51, 234, 0.25) !important;
+}
+
+body.light-theme .copilot-msg.user .copilot-msg-avatar {
+    background: #e0f2fe !important;
+    border: 1px solid rgba(8, 145, 178, 0.25) !important;
+}
+
+body.light-theme .copilot-citations {
+    border-top: 1px dashed rgba(147, 51, 234, 0.2) !important;
+}
+
+body.light-theme .citation-pill {
+    background: rgba(8, 145, 178, 0.1) !important;
+    color: #0e7490 !important;
+    border: 1px solid rgba(8, 145, 178, 0.28) !important;
+}
+
+body.light-theme .copilot-input-bar input {
+    background: #ffffff !important;
+    border: 1.5px solid rgba(147, 51, 234, 0.25) !important;
+    color: #240f2b !important;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+body.light-theme .copilot-input-bar input::placeholder {
+    color: #9ca3af !important;
+}
+
+body.light-theme .copilot-input-bar input:focus {
+    border-color: #9333ea !important;
+    box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.12) !important;
+}
+
+/* Code Evidence in Light Theme */
+body.light-theme .code-evidence-item {
+    background: #ffffff !important;
+    border: 1px solid rgba(147, 51, 234, 0.16) !important;
+    box-shadow: 0 4px 14px rgba(147, 51, 234, 0.04);
+}
+
+body.light-theme .code-evidence-repo {
+    background: rgba(147, 51, 234, 0.12) !important;
+    color: #7e22ce !important;
+}
+
+body.light-theme .code-evidence-file {
+    color: #4a044e !important;
+}
+
+body.light-theme .code-evidence-snippet {
+    background: #1a1025 !important;
+    color: #f1f5f9 !important;
+    border: 1px solid rgba(147, 51, 234, 0.25) !important;
+}
+
+/* Disclaimer in Light Theme */
+body.light-theme .authorship-disclaimer {
+    background: rgba(254, 243, 199, 0.9) !important;
+    border: 1px solid rgba(245, 158, 11, 0.4) !important;
+    color: #92400e !important;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.08);
+}
+
+body.light-theme .authorship-disclaimer p {
+    color: #78350f !important;
+}
+
